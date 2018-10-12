@@ -55,4 +55,6 @@ docs/_build/
 **/*.pyc
 **/*.log
 
+.idea/
+
 settings.yaml

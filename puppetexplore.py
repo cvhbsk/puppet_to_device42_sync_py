@@ -105,6 +105,8 @@ def d42_update(dev42, nodes, options, static_opt, mapping, from_version='3', pup
                 virtual_subtype = 'other'
                 if 'ec2_metadata' in node:
                     virtual_subtype = 'ec2'
+            else:
+                nodetype = 'Physical'
 
             cpupower = 0
             cpucount = node['physicalprocessorcount']
@@ -123,8 +125,12 @@ def d42_update(dev42, nodes, options, static_opt, mapping, from_version='3', pup
                 'type': nodetype,
                 'virtual_subtype': virtual_subtype,
                 'os': node['operatingsystem'],
-                'osver': node['operatingsystemrelease'],
+                'osver': node['operatingsystemmajrelease'],
 
+                'osverno': node['operatingsystemrelease'],
+                'osarch': node['osarch'],
+                'hardware': node['hardware'],
+                'manufacturer': node['manufacturer'],
                 'memory': totalmem,
                 'cpucount': cpucount,
                 'cpucore': cpucores,

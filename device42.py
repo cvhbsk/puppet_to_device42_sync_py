@@ -72,7 +72,7 @@ class Device42(object):
             self.logger.log(level.upper(), message)
 
     def update_device(self, **kwargs):
-        """ See http://api.device42.com/#create/update-device-by-name """
+        """ See https://api.device42.com/#create-update-device-by-name """
         path = 'devices'
         atleast_fields = "name serial_no uuid".split()
         known_fields = "new_name asset_no manufacturer hardware new_hardware is_it_switch"
@@ -81,6 +81,8 @@ class Device42(object):
         known_fields += " hddcount hddsize hddraid hddraid_type macaddress devices_in_cluster appcomps"
         known_fields += " customer contract_id contract"
         known_fields += " aliases subtype virtual_subtype notes tags"
+        known_fields += " osarch osverno blade_host_clear virtual_host_clear tags_remove aliases_remove"
+        known_fields += " devices_in_cluster_remove object_category new_object_category"
         known_fields = atleast_fields + known_fields.split()
         if not set(atleast_fields).intersection(kwargs.keys()):
             raise Device42BadArgumentError("At least one parameter should be passed: %s" % atleast_fields)

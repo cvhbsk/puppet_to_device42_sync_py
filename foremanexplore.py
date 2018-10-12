@@ -58,6 +58,8 @@ def main():
             node_ids.append(node['id'])
 
     facts_query = 'fqdn or memorysize_mb or is_virtual or processorcount or processors::models or serialnumber'
+    facts_query += ' or operatingsystem or operatingsystemrelease or operatingsystemmajrelease or manufacturer'
+    facts_query += ' or processor'
 
     nodes = []
     for node_id in node_ids:
@@ -69,6 +71,8 @@ def main():
 
         host['model'] = f.models.show(id=host['model_id'])
         host['os'] = f.operatingsystems.show(id=host['operatingsystem_id'])
+        host['architecture'] = f.architectures.show(id=host['architecture_id'])['architecture']['name']
+        host['model'] = f.models.show(id=host['model_id'])['model']['name']
         facts = f.do_get('/api/hosts/%s/facts?search=%s&per_page=999' % (node_id, facts_query), {})
         facts = facts[host['name']] if host['name'] in facts else {}
         disks = f.do_get('/api/hosts/%s/facts?search=disks&per_page=999' % node_id, {})
@@ -141,8 +145,18 @@ def main():
         if facts.has_key('processors::models'):
                 _processors_models = ast.literal_eval(facts['processors::models'])
         else:
-            _processors_models = ['']
+            _processors_models = []
             # prepare correct format
+
+        osarch = None
+        if '64' in host['architecture']:
+            osarch = 64
+        elif '86' in host['architecture']:
+            osarch = 32
+
+        for pscount in range(0, ast.literal_eval(facts['processorcount'])):
+            if facts.has_key("processor" + str(pscount)):
+                _processors_models.append(facts["processor" + str(pscount)])
 
         data = {
             'hostname': host['name'],
@@ -156,8 +170,12 @@ def main():
             'processors': {
                 'models': _processors_models
             },
-            'operatingsystem': host['os']['operatingsystem']['name'],
-            'operatingsystemrelease': host['os']['operatingsystem']['release_name'],
+            'operatingsystem': facts['operatingsystem'],
+            'operatingsystemrelease': facts['operatingsystemrelease'],
+            'operatingsystemmajrelease': facts['operatingsystemmajrelease'],
+            'osarch': osarch,
+            'hardware': host['model'],
+            'manufacturer': facts['manufacturer'],
             'macaddress': host['mac'],
             'networking': json.loads(networking['networking'].replace('"=>', '":')) if 'networking' in networking else ''
         }
