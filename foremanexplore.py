@@ -59,7 +59,7 @@ def main():
 
     facts_query = 'fqdn or memorysize_mb or is_virtual or processorcount or processors::models or serialnumber'
     facts_query += ' or operatingsystem or operatingsystemrelease or operatingsystemmajrelease or manufacturer'
-    facts_query += ' or processor'
+    facts_query += ' or processor or bios or uuid or raid'
 
     nodes = []
     for node_id in node_ids:
@@ -158,6 +158,16 @@ def main():
             if facts.has_key("processor" + str(pscount)):
                 _processors_models.append(facts["processor" + str(pscount)])
 
+        hddcount = 0
+        hddsize = 0
+        hddraid_type = None
+        hddraid = None
+        if facts.has_key('has_mdraid'):
+            if facts['has_mdraid'].lower() == 'true':
+                hddraid = 'software'
+            else:
+                hddraid = 'hardware'
+
         data = {
             'hostname': host['name'],
             'memorysize_mb': facts['memorysize_mb'],
@@ -177,6 +187,14 @@ def main():
             'hardware': host['model'],
             'manufacturer': facts['manufacturer'],
             'macaddress': host['mac'],
+            'bios_release_date': facts['bios_release_date'],
+            'bios_vendor': facts['bios_vendor'],
+            'bios_version': facts['bios_version'],
+            'uuid': facts['uuid'],
+            'hddcount': hddcount,
+            'hddsize': hddsize,
+            'hddraid': hddraid,
+            'hddraid_type': hddraid_type,
             'networking': json.loads(networking['networking'].replace('"=>', '":')) if 'networking' in networking else ''
         }
         if len(ec2_metadata) > 0:

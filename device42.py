@@ -82,7 +82,8 @@ class Device42(object):
         known_fields += " customer contract_id contract"
         known_fields += " aliases subtype virtual_subtype notes tags"
         known_fields += " osarch osverno blade_host_clear virtual_host_clear tags_remove aliases_remove"
-        known_fields += " devices_in_cluster_remove object_category new_object_category"
+        known_fields += " devices_in_cluster_remove object_category new_object_category bios_release_date bios_version"
+        known_fields += " bios_vendor"
         known_fields = atleast_fields + known_fields.split()
         if not set(atleast_fields).intersection(kwargs.keys()):
             raise Device42BadArgumentError("At least one parameter should be passed: %s" % atleast_fields)

@@ -141,6 +141,12 @@ def d42_update(dev42, nodes, options, static_opt, mapping, from_version='3', pup
                 'macaddress': node['macaddress'],
                 'customer': customer_name,
                 'service_level': static_opt.get('service_level'),
+                'bios_release_date': node['bios_release_date'],
+                'bios_vendor': node['bios_vendor'],
+                'bios_version': node['bios_version'],
+                'uuid': node['uuid'],
+                'hddraid': node['hddraid'],
+                'hddraid_type': node['hddraid_type']
             }
 
             if 'serial_no' in node:
