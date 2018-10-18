@@ -59,7 +59,8 @@ def main():
 
     facts_query = 'fqdn or memorysize_mb or is_virtual or processorcount or processors::models or serialnumber'
     facts_query += ' or operatingsystem or operatingsystemrelease or operatingsystemmajrelease or manufacturer'
-    facts_query += ' or processor or bios or uuid or raid'
+    facts_query += ' or processor or bios or uuid or raid or interfaces or ipaddress or macaddress or netmask'
+    facts_query += ' or network'
 
     nodes = []
     for node_id in node_ids:
@@ -120,6 +121,33 @@ def main():
             networking = {
                 'networking': json.dumps(clean_dict(networking2['networking']))
             }
+        else:
+            if 'interfaces' in facts:
+                interfaces = {}
+                for eth in facts['interfaces'].split(','):
+                    if facts.has_key("ipaddress_" + eth):
+                        interfaces[eth] = {}
+                        obj = interfaces[eth]
+                        obj['ip'] = facts["ipaddress_" + eth]
+                        if 'macaddress_" + eth' in facts:
+                            obj['mac'] = facts["macaddress_" + eth]
+                        else:
+                            obj['mac'] = ''
+                        if facts.has_key("netmask_" + eth):
+                            obj['netmask'] = facts["netmask_" + eth]
+                        else:
+                            obj['netmask'] = ''
+                        if facts.has_key("network_" + eth):
+                            obj['network'] = facts["network_" + eth]
+                        else:
+                            obj['network'] = ''
+                networking = {
+                    'networking': {
+                            'interfaces': interfaces
+                    }
+                }
+            else:
+                networking = {}
 
         if facts == {}:
             continue
@@ -195,7 +223,7 @@ def main():
             'hddsize': hddsize,
             'hddraid': hddraid,
             'hddraid_type': hddraid_type,
-            'networking': json.loads(networking['networking'].replace('"=>', '":')) if 'networking' in networking else ''
+            'networking': networking['networking'] if 'networking' in networking else ''
         }
         if len(ec2_metadata) > 0:
             data.update({'ec2_metadata': ec2_metadata})
